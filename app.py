@@ -1,17 +1,17 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
-import base64
-import json
 from modules.text_analyzer import TextAnalyzer
 from modules.image_analyzer import ImageAnalyzer
+from modules.dataset_handler import DatasetHandler
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
-# Initialize analyzers
+# Initialize analyzers and dataset handler
 text_analyzer = TextAnalyzer()
 image_analyzer = ImageAnalyzer()
+dataset_handler = DatasetHandler()
 
 @app.route('/')
 def index():
@@ -35,21 +35,21 @@ def analyze_image():
     result = image_analyzer.analyze_image_base64(image_data)
     return jsonify(result)
 
-@app.route('/sample_images/<path:filename>')
-def sample_image(filename):
-    return send_from_directory('sample_images', filename)
+@app.route('/train-model', methods=['POST'])
+def train_model():
+    try:
+        history = dataset_handler.train_model()
+        return jsonify({"message": "Model trained successfully", "history": history})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
-@app.route('/static/<path:path>')
-def serve_static(path):
-    return send_from_directory('static', path)
+@app.route('/evaluate-model', methods=['POST'])
+def evaluate_model():
+    try:
+        metrics = dataset_handler.evaluate_model()
+        return jsonify({"message": "Model evaluated successfully", "metrics": metrics})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    # Create necessary directories if they don't exist
-    os.makedirs('static/css', exist_ok=True)
-    os.makedirs('static/js', exist_ok=True)
-    os.makedirs('templates', exist_ok=True)
-    os.makedirs('sample_images', exist_ok=True)
-    
-    # Start the Flask app
-    print("Starting EmotionPulse server...")
     app.run(debug=True, port=5000)
