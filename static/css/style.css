@@ -1,0 +1,45 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1000px;
+}
+
+.tab-content {
+    background-color: #fff;
+}
+
+.selected-image-container {
+    max-height: 300px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+}
+
+.sample-image {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.sample-image:hover {
+    transform: scale(1.05);
+    border-color: #0d6efd;
+}
+
+#textResults, #imageResults {
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.emotion-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
