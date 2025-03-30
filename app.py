@@ -32,8 +32,12 @@ def analyze_image():
     if not image_data:
         return jsonify({"error": "No image data provided"})
     
-    result = image_analyzer.analyze_image_base64(image_data)
-    return jsonify(result)
+    try:
+        result = image_analyzer.analyze_image_base64(image_data)
+        return jsonify(result)
+    except Exception as e:
+        app.logger.error(f"Error analyzing image: {str(e)}")
+        return jsonify({"error": f"An error occurred while analyzing the image: {str(e)}"})
 
 @app.route('/train-model', methods=['POST'])
 def train_model():
