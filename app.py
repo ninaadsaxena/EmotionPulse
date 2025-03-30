@@ -42,18 +42,25 @@ def analyze_image():
 @app.route('/train-model', methods=['POST'])
 def train_model():
     try:
+        app.logger.info("Starting model training...")
         history = dataset_handler.train_model()
+        app.logger.info("Model training completed successfully")
         return jsonify({"message": "Model trained successfully", "history": history})
     except Exception as e:
-        return jsonify({"error": str(e)})
+        app.logger.error(f"Error during model training: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/evaluate-model', methods=['POST'])
 def evaluate_model():
     try:
+        app.logger.info("Starting model evaluation...")
         metrics = dataset_handler.evaluate_model()
+        app.logger.info("Model evaluation completed successfully")
         return jsonify({"message": "Model evaluated successfully", "metrics": metrics})
     except Exception as e:
-        return jsonify({"error": str(e)})
+        app.logger.error(f"Error during model evaluation: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
