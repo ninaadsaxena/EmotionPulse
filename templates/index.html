@@ -37,6 +37,11 @@
                                     <i class="fas fa-image"></i> Image Analysis
                                 </button>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="dataset-tab" data-bs-toggle="tab" data-bs-target="#dataset-panel" type="button" role="tab">
+                                    <i class="fas fa-database"></i> Dataset Operations
+                                </button>
+                            </li>
                         </ul>
 
                         <div class="tab-content p-4" id="analysisContent">
@@ -167,6 +172,56 @@
                                                     <h5 class="mt-4">Emotion Breakdown</h5>
                                                     <div id="imageEmotionsChart" class="mt-3 chart-container"></div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Dataset Operations Tab -->
+                            <div class="tab-pane fade" id="dataset-panel" role="tabpanel">
+                                <h3 class="mb-3 section-title">Dataset Operations</h3>
+                                <p>Train and evaluate models using the emotion detection dataset</p>
+                                
+                                <div class="mb-4">
+                                    <div class="card info-card mb-4">
+                                        <div class="card-body">
+                                            <h5><i class="fas fa-info-circle text-primary"></i> Dataset Information</h5>
+                                            <p>This section uses the Emotion Detection FER dataset from Kaggle, containing images of faces with different emotional expressions.</p>
+                                            <p>The dataset includes categories for: Happy, Sad, Angry, Frustrated, Nervous, and Excited expressions.</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-3">
+                                        <button class="btn btn-success animated-button" id="trainModelBtn">
+                                            <span class="button-text"><i class="fas fa-cogs"></i> Train Model</span>
+                                            <span class="button-icon"><i class="fas fa-arrow-right"></i></span>
+                                        </button>
+                                        
+                                        <button class="btn btn-info animated-button" id="evaluateModelBtn">
+                                            <span class="button-text"><i class="fas fa-chart-bar"></i> Evaluate Model</span>
+                                            <span class="button-icon"><i class="fas fa-arrow-right"></i></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="result-container mt-4 d-none" id="trainResults">
+                                    <h4 class="result-title">Training Results</h4>
+                                    <div class="card result-card">
+                                        <div class="card-body">
+                                            <div id="trainResultsContent">
+                                                <!-- Training results will be displayed here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="result-container mt-4 d-none" id="evaluateResults">
+                                    <h4 class="result-title">Evaluation Results</h4>
+                                    <div class="card result-card">
+                                        <div class="card-body">
+                                            <div id="evaluateResultsContent">
+                                                <!-- Evaluation results will be displayed here -->
                                             </div>
                                         </div>
                                     </div>
