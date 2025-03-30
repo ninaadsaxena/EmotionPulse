@@ -28,32 +28,40 @@ class TextAnalyzer:
         emotions = {item['label']: item['score'] for item in result[0]}
         return emotions
     
-    def analyze(self, text):
-        """Perform complete text analysis including sentiment and emotion."""
-        if not text or text.strip() == "":
-            return {
-                "error": "Empty text provided"
-            }
+   def analyze(self, text):
+    if not text or text.strip() == "":
+        return {"error": "Empty text provided"}
+    
+    try:
+        sentiment = self.analyze_sentiment(text)
+        emotions = self.analyze_emotion(text)
         
-        try:
-            sentiment = self.analyze_sentiment(text)
-            emotions = self.analyze_emotion(text)
-            
-            # Find the dominant emotion
-            dominant_emotion = max(emotions.items(), key=lambda x: x[1])
-            
-            return {
-                "sentiment": {
-                    "label": sentiment["label"],
-                    "score": sentiment["score"]
-                },
-                "emotions": emotions,
-                "dominant_emotion": {
-                    "label": dominant_emotion[0],
-                    "score": dominant_emotion[1]
-                }
-            }
-        except Exception as e:
-            return {
-                "error": str(e)
-            }
+        # Find the dominant emotion
+        dominant_emotion = max(emotions.items(), key=lambda x: x[1])
+        
+        # Create a breakdown of emotions in the text
+        emotion_breakdown = []
+        for word in text.split():
+            word_emotions = self.analyze_emotion(word)
+            max_emotion = max(word_emotions.items(), key=lambda x: x[1])
+            if max_emotion[1] > 0.5:  # Only include if emotion score is significant
+                emotion_breakdown.append({
+                    "word": word,
+                    "emotion": max_emotion[0],
+                    "score": max_emotion[1]
+                })
+        
+        return {
+            "sentiment": {
+                "label": sentiment["label"],
+                "score": sentiment["score"]
+            },
+            "emotions": emotions,
+            "dominant_emotion": {
+                "label": dominant_emotion[0],
+                "score": dominant_emotion[1]
+            },
+            "emotion_breakdown": emotion_breakdown
+        }
+    except Exception as e:
+        return {"error": str(e)}
