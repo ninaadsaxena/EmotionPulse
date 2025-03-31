@@ -1,21 +1,29 @@
 from transformers import pipeline
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 class TextAnalyzer:
     def __init__(self):
-        # Print loading message
-        print("Loading text sentiment analysis model...")
+        logger.info("Loading text sentiment analysis model...")
         start_time = time.time()
         
-        # Initialize the sentiment analysis pipeline
-        self.sentiment_analyzer = pipeline("sentiment-analysis")
-        
-        # Initialize the emotion classification pipeline
-        self.emotion_classifier = pipeline("text-classification", 
-                                          model="j-hartmann/emotion-english-distilroberta-base", 
-                                          return_all_scores=True)
-        
-        print(f"Text models loaded in {time.time() - start_time:.2f} seconds")
+        try:
+            # Initialize the sentiment analysis pipeline
+            self.sentiment_analyzer = pipeline("sentiment-analysis")
+            
+            # Initialize the emotion classification pipeline
+            self.emotion_classifier = pipeline(
+                "text-classification", 
+                model="j-hartmann/emotion-english-distilroberta-base", 
+                return_all_scores=True
+            )
+            
+            logger.info(f"Text models loaded in {time.time() - start_time:.2f} seconds")
+        except Exception as e:
+            logger.error(f"Error loading text analysis models: {str(e)}")
+            raise
     
     def analyze_sentiment(self, text):
         """Analyze the sentiment of the given text."""
@@ -28,40 +36,48 @@ class TextAnalyzer:
         emotions = {item['label']: item['score'] for item in result[0]}
         return emotions
     
-   def analyze(self, text):
-    if not text or text.strip() == "":
-        return {"error": "Empty text provided"}
-    
-    try:
-        sentiment = self.analyze_sentiment(text)
-        emotions = self.analyze_emotion(text)
+    def analyze(self, text):
+        """Perform complete text analysis including sentiment and emotion."""
+        if not text or text.strip() == "":
+            return {"error": "Empty text provided"}
         
-        # Find the dominant emotion
-        dominant_emotion = max(emotions.items(), key=lambda x: x[1])
-        
-        # Create a breakdown of emotions in the text
-        emotion_breakdown = []
-        for word in text.split():
-            word_emotions = self.analyze_emotion(word)
-            max_emotion = max(word_emotions.items(), key=lambda x: x[1])
-            if max_emotion[1] > 0.5:  # Only include if emotion score is significant
-                emotion_breakdown.append({
-                    "word": word,
-                    "emotion": max_emotion[0],
-                    "score": max_emotion[1]
-                })
-        
-        return {
-            "sentiment": {
-                "label": sentiment["label"],
-                "score": sentiment["score"]
-            },
-            "emotions": emotions,
-            "dominant_emotion": {
-                "label": dominant_emotion[0],
-                "score": dominant_emotion[1]
-            },
-            "emotion_breakdown": emotion_breakdown
-        }
-    except Exception as e:
-        return {"error": str(e)}
+        try:
+            sentiment = self.analyze_sentiment(text)
+            emotions = self.analyze_emotion(text)
+            
+            # Find the dominant emotion
+            dominant_emotion = max(emotions.items(), key=lambda x: x[1])
+            
+            # Create a breakdown of emotions in the text
+            emotion_breakdown = []
+            words = text.split()
+            for i, word in enumerate(words):
+                if len(word) > 3:  # Only analyze words with more than 3 characters
+                    try:
+                        word_emotions = self.analyze_emotion(word)
+                        max_emotion = max(word_emotions.items(), key=lambda x: x[1])
+                        if max_emotion[1] > 0.6:  # Only include if emotion score is significant
+                            emotion_breakdown.append({
+                                "word": word,
+                                "position": i,
+                                "emotion": max_emotion[0],
+                                "score": max_emotion[1]
+                            })
+                    except Exception as e:
+                        logger.warning(f"Could not analyze word '{word}': {str(e)}")
+            
+            return {
+                "sentiment": {
+                    "label": sentiment["label"],
+                    "score": sentiment["score"]
+                },
+                "emotions": emotions,
+                "dominant_emotion": {
+                    "label": dominant_emotion[0],
+                    "score": dominant_emotion[1]
+                },
+                "emotion_breakdown": emotion_breakdown
+            }
+        except Exception as e:
+            logger.error(f"Error analyzing text: {str(e)}")
+            return {"error": str(e)}
