@@ -285,4 +285,5 @@ body {
   border: 2px dashed #ccc;
   border-radius: var(--border-radius);
   padding: 2rem;
-  text-align
+  text-align;
+}
